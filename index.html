@@ -1,343 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ray's Candy Clicker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray's Candy Clicker</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
 
-    body {
-      margin: 0;
-      background: black;
-      height: 100vh;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
+body {
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  background: #0b0b0b;
+  overflow: hidden;
+}
 
-    .main {
-      height: 100vh;
-      margin-right: 250px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      position: relative;
-    }
+/* LEFT SIDE */
+.left {
+  width: calc(100% - 300px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
-    .game {
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
+.counter {
+  font-size: 50px;
+  margin-bottom: 10px;
+  color: #ffb6d9;
+  background: #ff5fb5;
+  padding: 10px 25px;
+  border-radius: 20px;
+  border: 4px solid #ffd3ea;
+  box-shadow: 0 6px 0 #d94a93;
+}
 
-    .counter {
-      font-size: 48px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #ffb6d9;
-      background: #ff67b7;
-      padding: 10px 24px;
-      border-radius: 18px;
-      border: 4px solid #ffd3ea;
-      box-shadow: 0 6px 0 #d94a93;
-      text-shadow: 1px 1px 0 rgba(255,255,255,0.35);
-      display: inline-block;
-    }
+.per-click {
+  margin-bottom: 20px;
+  color: #ffd8ec;
+}
 
-    .per-click {
-      margin-bottom: 20px;
-      font-size: 20px;
-      color: #ffd8ec;
-    }
+/* BUCKET */
+.bucket {
+  width: 280px;
+  cursor: pointer;
+  transition: 0.1s;
+}
 
-    .bucket {
-      width: 270px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
+.bucket:active {
+  transform: scale(0.9) translateY(10px);
+}
 
-    .bucket:active {
-      transform: scale(0.88) translateY(10px);
-    }
+/* CANDY */
+.candy {
+  position: fixed;
+  width: 50px;
+  pointer-events: none;
+}
 
-    .candy {
-      position: fixed;
-      pointer-events: none;
-      z-index: 1;
-      width: 50px;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
+/* RIGHT SHOP */
+.shop {
+  width: 300px;
+  background: #1a1a1a;
+  border-left: 4px solid #ffb347;
+  padding: 10px;
+  overflow-y: auto;
+}
 
-    /* RIGHT SHOP */
-    .shop {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 250px;
-      height: 100vh;
-      background: linear-gradient(180deg, #1f1f1f, #111);
-      border-left: 4px solid #ffb347;
-      padding: 14px;
-      overflow-y: auto;
-      z-index: 20;
-    }
+.shop-title {
+  font-size: 28px;
+  text-align: center;
+  color: #ffb347;
+  margin-bottom: 10px;
+}
 
-    .shop-title {
-      font-size: 28px;
-      font-weight: bold;
-      text-align: center;
-      color: #ffbf5f;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid rgba(255, 179, 71, 0.35);
-    }
+/* SHOP ITEM */
+.shop-item {
+  display: flex;
+  gap: 10px;
+  background: #2a2a2a;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.1s;
+}
 
-    .shop-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #2a2a2a;
-      border: 2px solid #3a3a3a;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.08s ease, background 0.12s ease, border-color 0.12s ease;
-    }
+.shop-item:hover {
+  background: #3a3a3a;
+  transform: scale(1.02);
+}
 
-    .shop-item:hover {
-      background: #353535;
-      border-color: #ffb347;
-      transform: scale(1.02);
-    }
+.shop-item.disabled {
+  opacity: 0.5;
+}
 
-    .shop-item:active {
-      transform: scale(0.98);
-    }
+/* IMAGE */
+.item-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+}
 
-    .shop-item.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+/* TEXT */
+.item-name {
+  font-weight: bold;
+}
 
-    .shop-item.disabled:hover {
-      transform: none;
-      background: #2a2a2a;
-      border-color: #3a3a3a;
-    }
+.item-cost {
+  font-size: 14px;
+  color: #ccc;
+}
 
-    .item-icon-wrap {
-      position: relative;
-      width: 58px;
-      height: 58px;
-      flex-shrink: 0;
-    }
+.item-owned {
+  font-size: 12px;
+  color: #9f9;
+}
 
-    .cookie-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #d9995a 0%, #b96e36 70%);
-      border: 3px solid #84471d;
-      position: relative;
-      box-shadow: inset -3px -3px 0 rgba(0,0,0,0.18);
-    }
+/* TOOLTIP */
+.tooltip {
+  position: absolute;
+  background: #fff0c6;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  display: none;
+}
 
-    .chip {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #5d3216;
-      border-radius: 50%;
-    }
-
-    .tooltip {
-      position: absolute;
-      left: -2px;
-      bottom: 68px;
-      background: #fff0c6;
-      color: #111;
-      font-size: 13px;
-      font-weight: bold;
-      padding: 6px 10px;
-      border-radius: 10px;
-      white-space: nowrap;
-      display: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-      z-index: 30;
-    }
-
-    .item-icon-wrap:hover .tooltip {
-      display: block;
-    }
-
-    .item-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .item-name {
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffe0a6;
-    }
-
-    .item-cost {
-      font-size: 15px;
-      color: #d6d6d6;
-      margin-top: 4px;
-    }
-
-    .owned {
-      margin-top: 4px;
-      font-size: 13px;
-      color: #9fd89f;
-    }
-  </style>
+.shop-item:hover .tooltip {
+  display: block;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="main">
-    <div class="game">
-      <div class="counter" id="counter">0</div>
-      <div class="per-click" id="perClickText">Per click: 1</div>
-      <img src="images/bucket.png" class="bucket" id="bucket" alt="Candy Bucket" />
+<div class="left">
+  <div class="counter" id="counter">0</div>
+  <div class="per-click" id="perClickText">Per click: 1</div>
+  <img src="images/bucket.png" class="bucket" id="bucket">
+</div>
+
+<div class="shop">
+  <div class="shop-title">Shop</div>
+
+  <div class="shop-item" id="cookieItem">
+    <img src="shop-images/shopcookie.png" class="item-icon">
+
+    <div>
+      <div class="item-name">Cookie</div>
+      <div class="item-cost" id="cookieCostText">10 Clicks</div>
+      <div class="item-owned" id="cookieOwnedText">Owned: 0</div>
     </div>
+
+    <div class="tooltip">+1 click</div>
   </div>
+</div>
 
-  <div class="shop">
-    <div class="shop-title">Shop</div>
+<script>
+let count = 0;
+let clicksPerTap = 1;
+let cookieOwned = 0;
+let cookieCost = 10;
 
-    <div class="shop-item" id="cookieItem">
-      <div class="item-icon-wrap">
-        <div class="tooltip">+1 click</div>
-        <div class="cookie-icon">
-          <div class="chip" style="left: 10px; top: 12px;"></div>
-          <div class="chip" style="left: 30px; top: 9px;"></div>
-          <div class="chip" style="left: 18px; top: 25px;"></div>
-          <div class="chip" style="left: 37px; top: 29px;"></div>
-          <div class="chip" style="left: 12px; top: 39px;"></div>
-        </div>
-      </div>
+const counter = document.getElementById("counter");
+const perClickText = document.getElementById("perClickText");
+const bucket = document.getElementById("bucket");
 
-      <div class="item-info">
-        <div class="item-name">Cookie</div>
-        <div class="item-cost" id="cookieCostText">10 Clicks</div>
-        <div class="owned" id="cookieOwnedText">Owned: 0</div>
-      </div>
-    </div>
-  </div>
+const cookieItem = document.getElementById("cookieItem");
+const cookieCostText = document.getElementById("cookieCostText");
+const cookieOwnedText = document.getElementById("cookieOwnedText");
 
-  <script>
-    let count = 0;
-    let clicksPerTap = 1;
-    let cookieOwned = 0;
-    let cookieCost = 10;
+function updateUI() {
+  counter.textContent = count;
+  perClickText.textContent = "Per click: " + clicksPerTap;
+  cookieCostText.textContent = cookieCost + " Clicks";
+  cookieOwnedText.textContent = "Owned: " + cookieOwned;
 
-    const counter = document.getElementById("counter");
-    const perClickText = document.getElementById("perClickText");
-    const bucket = document.getElementById("bucket");
+  if (count >= cookieCost) {
+    cookieItem.classList.remove("disabled");
+  } else {
+    cookieItem.classList.add("disabled");
+  }
+}
 
-    const cookieItem = document.getElementById("cookieItem");
-    const cookieCostText = document.getElementById("cookieCostText");
-    const cookieOwnedText = document.getElementById("cookieOwnedText");
+/* SPAWN CANDY */
+function spawnCandy() {
+  const candy = document.createElement("img");
+  candy.src = "images/bucketcandy.png";
+  candy.className = "candy";
 
-    function updateUI() {
-      counter.textContent = count;
-      perClickText.textContent = "Per click: " + clicksPerTap;
-      cookieCostText.textContent = cookieCost + " Clicks";
-      cookieOwnedText.textContent = "Owned: " + cookieOwned;
+  const startX = Math.random() * window.innerWidth;
+  const startY = Math.random() * window.innerHeight;
 
-      if (count >= cookieCost) {
-        cookieItem.classList.remove("disabled");
-      } else {
-        cookieItem.classList.add("disabled");
-      }
-    }
+  candy.style.left = startX + "px";
+  candy.style.top = startY + "px";
 
-    function getFarSpawn(bucketRect) {
-      const minDist = 200;
-      let x, y, dx, dy, dist;
+  document.body.appendChild(candy);
 
-      do {
-        x = Math.random() * (window.innerWidth - 80);
-        y = Math.random() * (window.innerHeight - 80);
+  const rect = bucket.getBoundingClientRect();
+  const targetX = rect.left + rect.width / 2;
+  const targetY = rect.top + rect.height / 2;
 
-        const bx = bucketRect.left + bucketRect.width / 2;
-        const by = bucketRect.top + bucketRect.height / 2;
+  candy.animate([
+    { transform: "translate(0,0)" },
+    { transform: `translate(${targetX - startX}px, ${targetY - startY}px) scale(0.2)` }
+  ], {
+    duration: 700,
+    easing: "ease-out"
+  });
 
-        dx = x - bx;
-        dy = y - by;
-        dist = Math.sqrt(dx * dx + dy * dy);
-      } while (dist < minDist);
+  setTimeout(() => candy.remove(), 700);
+}
 
-      return { x, y };
-    }
+/* CLICK */
+bucket.addEventListener("click", () => {
+  count += clicksPerTap;
+  spawnCandy();
+  updateUI();
+});
 
-    function spawnCandy() {
-      const candy = document.createElement("img");
-      candy.src = "images/bucketcandy.png";
-      candy.className = "candy";
+/* BUY COOKIE */
+cookieItem.addEventListener("click", () => {
+  if (count < cookieCost) return;
 
-      const bucketRect = bucket.getBoundingClientRect();
-      const spawn = getFarSpawn(bucketRect);
+  count -= cookieCost;
+  cookieOwned++;
+  clicksPerTap++;
 
-      candy.style.left = spawn.x + "px";
-      candy.style.top = spawn.y + "px";
+  cookieCost = Math.floor(cookieCost * 1.5);
 
-      document.body.appendChild(candy);
+  updateUI();
+});
 
-      requestAnimationFrame(() => {
-        const rect = bucket.getBoundingClientRect();
-        const targetX = rect.left + rect.width / 2 - 25;
-        const targetY = rect.top + rect.height / 2 - 25;
+updateUI();
+</script>
 
-        const moveX = targetX - spawn.x;
-        const moveY = targetY - spawn.y;
-
-        candy.animate(
-          [
-            { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
-            { transform: `translate(${moveX}px, ${moveY}px) scale(0.2) rotate(360deg)`, opacity: 0 }
-          ],
-          {
-            duration: 700,
-            easing: "ease-out",
-            fill: "forwards"
-          }
-        );
-
-        setTimeout(() => candy.remove(), 700);
-      });
-    }
-
-    bucket.addEventListener("click", () => {
-      count += clicksPerTap;
-      spawnCandy();
-      updateUI();
-    });
-
-    cookieItem.addEventListener("click", () => {
-      if (count < cookieCost) return;
-
-      count -= cookieCost;
-      cookieOwned += 1;
-      clicksPerTap += 1;
-      cookieCost = Math.floor(cookieCost * 1.5);
-
-      updateUI();
-    });
-
-    updateUI();
-  </script>
 </body>
 </html>
