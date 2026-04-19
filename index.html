@@ -1,38 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ray’s Candy Clicker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ray's Candy Clicker</title>
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-/* Bucket image */
-.bucket {
-  width: 260px;
-  cursor: pointer;
-  transition: transform 0.1s ease, filter 0.1s ease;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
 
-/* Press animation */
-.bucket:active {
-  transform: scale(0.85) translateY(10px);
-  filter: brightness(1.2);
-}
-</style>
+    .game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .counter {
+      color: #9dff8a;
+      font-size: 52px;
+      font-weight: bold;
+      text-shadow:
+        0 0 10px #9dff8a,
+        0 0 20px #9dff8a,
+        0 0 35px #9dff8a;
+      user-select: none;
+    }
+
+    .bucket {
+      width: 280px;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.08s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+      position: relative;
+      z-index: 3;
+    }
+
+    .bucket:active {
+      transform: scale(0.9) translateY(8px);
+      filter: brightness(1.1);
+    }
+
+    .candy {
+      position: fixed;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .candy::before,
+    .candy::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      width: 10px;
+      height: 14px;
+      background: inherit;
+      border-radius: 4px;
+    }
+
+    .candy::before {
+      left: -6px;
+      transform: rotate(35deg);
+    }
+
+    .candy::after {
+      right: -6px;
+      transform: rotate(-35deg);
+    }
+  </style>
 </head>
-
 <body>
+  <div class="game">
+    <div class="counter" id="counter">0</div>
+    <img src="Images/bucket.png" class="bucket" id="bucket" alt="Candy Bucket" />
+  </div>
 
-<img src="images/bucket.png" class="bucket">
+  <script>
+    let clicks = 0;
 
+    const counter = document.getElementById("counter");
+    const bucket = document.getElementById("bucket");
+
+    const candyColors = [
+      "#ff4d6d",
+      "#ff9f1c",
+      "#ffd60a",
+      "#7bff00",
+      "#00f5d4",
+      "#4d96ff",
+      "#b517ff",
+      "#ff66c4"
+    ];
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function spawnFlyingCandy() {
+      const candy = document.createElement("div");
+      candy.className = "candy";
+
+      const color = candyColors[Math.floor(Math.random() * candyColors.length)];
+      candy.style.background = color;
+      candy.style.color = color;
+
+      const size = random(20, 34);
+      candy.style.width = size + "px";
+      candy.style.height = size + "px";
+
+      const startX = random(20, window.innerWidth - 60);
+      const startY = random(20, window.innerHeight - 60);
+
+      candy.style.left = startX + "px";
+      candy.style.top = startY + "px";
+
+      document.body.appendChild(candy);
+
+      const bucketRect = bucket.getBoundingClientRect();
+      const candyRect = candy.getBoundingClientRect();
+
+      const targetX = bucketRect.left + bucketRect.width / 2 - candyRect.width / 2;
+      const targetY = bucketRect.top + bucketRect.height / 2 - candyRect.height / 2;
+
+      const moveX = targetX - startX;
+      const moveY = targetY - startY;
+
+      candy.animate(
+        [
+          {
+            transform: "translate(0px, 0px) scale(1) rotate(0deg)",
+            opacity: 1
+          },
+          {
+            transform: `translate(${moveX}px, ${moveY}px) scale(0.3) rotate(540deg)`,
+            opacity: 0.2
+          }
+        ],
+        {
+          duration: 700,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          fill: "forwards"
+        }
+      );
+
+      setTimeout(() => {
+        candy.remove();
+      }, 720);
+    }
+
+    bucket.addEventListener("click", () => {
+      clicks += 1;
+      counter.textContent = clicks;
+      spawnFlyingCandy();
+    });
+  </script>
 </body>
 </html>
