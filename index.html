@@ -1,160 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ray's Candy Clicker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray's Candy Clicker</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+body {
+  margin: 0;
+  background: black;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-      position: relative;
-    }
+/* layout */
+.game {
+  text-align: center;
+}
 
-    .game {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      position: relative;
-      z-index: 2;
-    }
+/* candy-style counter */
+.counter {
+  font-size: 50px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #ff8fcf;
+  background: #ff5fb5;
+  padding: 10px 25px;
+  border-radius: 20px;
+  border: 4px solid #ffc6e8;
+  box-shadow: 0 6px 0 #d94a93;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+}
 
-    .counter {
-      font-size: 52px;
-      font-weight: 900;
-      color: #ffe3f1;
-      letter-spacing: 2px;
-      padding: 10px 24px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #ff7bbb, #ff9bcb);
-      border: 4px solid #ffd2e8;
-      box-shadow: 0 6px 0 #d95b97;
-      text-shadow: 1px 1px 0 rgba(255,255,255,0.35);
-      user-select: none;
-    }
+/* bucket */
+.bucket {
+  width: 260px;
+  cursor: pointer;
+  transition: 0.1s;
+}
 
-    .bucket {
-      width: 280px;
-      cursor: pointer;
-      transition: transform 0.08s ease, filter 0.08s ease;
-      user-select: none;
-      -webkit-user-drag: none;
-      position: relative;
-      z-index: 3;
-    }
+.bucket:active {
+  transform: scale(0.85) translateY(10px);
+}
 
-    .bucket:active {
-      transform: scale(0.9) translateY(8px);
-      filter: brightness(1.04);
-    }
-
-    .candy {
-      position: fixed;
-      pointer-events: none;
-      z-index: 1;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-  </style>
+/* candy image */
+.candy {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  width: 50px;
+}
+</style>
 </head>
+
 <body>
-  <div class="game">
-    <div class="counter" id="counter">0</div>
-    <img src="images/bucket.png" class="bucket" id="bucket" alt="Candy Bucket" />
-  </div>
 
-  <script>
-    let clicks = 0;
+<div class="game">
+  <div class="counter" id="counter">0</div>
+  <img src="images/bucket.png" class="bucket" id="bucket">
+</div>
 
-    const counter = document.getElementById("counter");
-    const bucket = document.getElementById("bucket");
+<script>
+let count = 0;
 
-    function getFarSpawnPosition(bucketRect) {
-      const minDistance = 220;
-      let x, y, dx, dy, distance;
+const counter = document.getElementById("counter");
+const bucket = document.getElementById("bucket");
 
-      do {
-        x = Math.random() * (window.innerWidth - 80);
-        y = Math.random() * (window.innerHeight - 80);
+function getFarSpawn(bucketRect) {
+  const minDist = 200;
+  let x, y, dx, dy, dist;
 
-        const bucketCenterX = bucketRect.left + bucketRect.width / 2;
-        const bucketCenterY = bucketRect.top + bucketRect.height / 2;
+  do {
+    x = Math.random() * (window.innerWidth - 80);
+    y = Math.random() * (window.innerHeight - 80);
 
-        dx = x - bucketCenterX;
-        dy = y - bucketCenterY;
-        distance = Math.sqrt(dx * dx + dy * dy);
-      } while (distance < minDistance);
+    const bx = bucketRect.left + bucketRect.width / 2;
+    const by = bucketRect.top + bucketRect.height / 2;
 
-      return { x, y };
-    }
+    dx = x - bx;
+    dy = y - by;
+    dist = Math.sqrt(dx * dx + dy * dy);
 
-    function spawnCandy() {
-      const candy = document.createElement("img");
-      candy.src = "images/bucketcandy_no_bg.png";
-      candy.className = "candy";
+  } while (dist < minDist);
 
-      const size = Math.random() * 18 + 34;
-      candy.style.width = size + "px";
+  return { x, y };
+}
 
-      const bucketRect = bucket.getBoundingClientRect();
-      const spawn = getFarSpawnPosition(bucketRect);
+function spawnCandy() {
+  const candy = document.createElement("img");
+  candy.src = "images/bucketcandy.png";
+  candy.className = "candy";
 
-      candy.style.left = spawn.x + "px";
-      candy.style.top = spawn.y + "px";
+  const bucketRect = bucket.getBoundingClientRect();
+  const spawn = getFarSpawn(bucketRect);
 
-      document.body.appendChild(candy);
+  candy.style.left = spawn.x + "px";
+  candy.style.top = spawn.y + "px";
 
-      requestAnimationFrame(() => {
-        const rect = bucket.getBoundingClientRect();
-        const candyRect = candy.getBoundingClientRect();
+  document.body.appendChild(candy);
 
-        const targetX = rect.left + rect.width / 2 - candyRect.width / 2;
-        const targetY = rect.top + rect.height / 2 - candyRect.height / 2;
+  requestAnimationFrame(() => {
+    const rect = bucket.getBoundingClientRect();
 
-        const moveX = targetX - spawn.x;
-        const moveY = targetY - spawn.y;
+    const targetX = rect.left + rect.width / 2 - 25;
+    const targetY = rect.top + rect.height / 2 - 25;
 
-        candy.animate(
-          [
-            {
-              transform: "translate(0px, 0px) scale(1) rotate(0deg)",
-              opacity: 1
-            },
-            {
-              transform: `translate(${moveX}px, ${moveY}px) scale(0.2) rotate(540deg)`,
-              opacity: 0.05
-            }
-          ],
-          {
-            duration: 750,
-            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-            fill: "forwards"
-          }
-        );
+    const moveX = targetX - spawn.x;
+    const moveY = targetY - spawn.y;
 
-        setTimeout(() => {
-          candy.remove();
-        }, 760);
-      });
-    }
-
-    bucket.addEventListener("click", () => {
-      clicks += 1;
-      counter.textContent = clicks;
-      spawnCandy();
+    candy.animate([
+      { transform: "translate(0,0) scale(1)", opacity: 1 },
+      { transform: `translate(${moveX}px, ${moveY}px) scale(0.2) rotate(360deg)`, opacity: 0 }
+    ], {
+      duration: 700,
+      easing: "ease-out",
+      fill: "forwards"
     });
-  </script>
+
+    setTimeout(() => candy.remove(), 700);
+  });
+}
+
+bucket.addEventListener("click", () => {
+  count++;
+  counter.textContent = count;
+  spawnCandy();
+});
+</script>
+
 </body>
 </html>
