@@ -1,351 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ray's Candy Clicker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ray's Candy Clicker</title>
 
-<style>
-  * {
-    box-sizing: border-box;
-  }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    background: black;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-    color: white;
-  }
+    body {
+      margin: 0;
+      background: black;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
 
-  .game {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-  }
+    .main {
+      height: 100vh;
+      margin-right: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-  .counter {
-    font-size: 50px;
-    margin-bottom: 20px;
-    font-weight: bold;
-    color: #ff8fcf;
-    background: #ff5fb5;
-    padding: 10px 25px;
-    border-radius: 20px;
-    border: 4px solid #ffc6e8;
-    box-shadow: 0 6px 0 #d94a93;
-    text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
-    display: inline-block;
-  }
+    .game {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
 
-  .bucket {
-    width: 260px;
-    cursor: pointer;
-    transition: 0.1s;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
+    .counter {
+      font-size: 48px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #ffb6d9;
+      background: #ff67b7;
+      padding: 10px 24px;
+      border-radius: 18px;
+      border: 4px solid #ffd3ea;
+      box-shadow: 0 6px 0 #d94a93;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.35);
+      display: inline-block;
+    }
 
-  .bucket:active {
-    transform: scale(0.85) translateY(10px);
-  }
+    .per-click {
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #ffd8ec;
+    }
 
-  .candy {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1;
-    width: 50px;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
+    .bucket {
+      width: 270px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
 
-  .shop-button {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #ffb347;
-    color: black;
-    border: none;
-    border-radius: 16px;
-    padding: 12px 18px;
-    font-size: 22px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px 0 #d98b1f;
-    transition: transform 0.1s ease;
-    z-index: 10;
-  }
+    .bucket:active {
+      transform: scale(0.88) translateY(10px);
+    }
 
-  .shop-button:active {
-    transform: translateY(3px);
-  }
+    .candy {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      width: 50px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
 
-  .shop-panel {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 300px;
-    background: #1a1a1a;
-    border: 3px solid #ffb347;
-    border-radius: 18px;
-    padding: 16px;
-    display: none;
-    z-index: 20;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  }
+    /* RIGHT SHOP */
+    .shop {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 250px;
+      height: 100vh;
+      background: linear-gradient(180deg, #1f1f1f, #111);
+      border-left: 4px solid #ffb347;
+      padding: 14px;
+      overflow-y: auto;
+      z-index: 20;
+    }
 
-  .shop-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 14px;
-    color: #ffb347;
-  }
+    .shop-title {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      color: #ffbf5f;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 179, 71, 0.35);
+    }
 
-  .shop-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #2a2a2a;
-    border-radius: 14px;
-    padding: 12px;
-    position: relative;
-  }
+    .shop-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #2a2a2a;
+      border: 2px solid #3a3a3a;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.08s ease, background 0.12s ease, border-color 0.12s ease;
+    }
 
-  .item-icon-wrap {
-    position: relative;
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-  }
+    .shop-item:hover {
+      background: #353535;
+      border-color: #ffb347;
+      transform: scale(1.02);
+    }
 
-  .cookie-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 30% 30%, #d89352 0%, #b96f36 70%);
-    border: 3px solid #8a4f22;
-    position: relative;
-    cursor: default;
-  }
+    .shop-item:active {
+      transform: scale(0.98);
+    }
 
-  .chip {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #5b3318;
-    border-radius: 50%;
-  }
+    .shop-item.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-  .tooltip {
-    position: absolute;
-    left: 75px;
-    top: 18px;
-    background: #fff0c7;
-    color: black;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: nowrap;
-    display: none;
-    z-index: 30;
-  }
+    .shop-item.disabled:hover {
+      transform: none;
+      background: #2a2a2a;
+      border-color: #3a3a3a;
+    }
 
-  .item-icon-wrap:hover .tooltip {
-    display: block;
-  }
+    .item-icon-wrap {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+    }
 
-  .item-info {
-    flex: 1;
-    text-align: left;
-  }
+    .cookie-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #d9995a 0%, #b96e36 70%);
+      border: 3px solid #84471d;
+      position: relative;
+      box-shadow: inset -3px -3px 0 rgba(0,0,0,0.18);
+    }
 
-  .item-name {
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffd28a;
-  }
+    .chip {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #5d3216;
+      border-radius: 50%;
+    }
 
-  .item-cost {
-    font-size: 16px;
-    color: #d8d8d8;
-    margin-top: 4px;
-  }
+    .tooltip {
+      position: absolute;
+      left: -2px;
+      bottom: 68px;
+      background: #fff0c6;
+      color: #111;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      z-index: 30;
+    }
 
-  .buy-button {
-    background: #7dff8a;
-    color: black;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #41b84d;
-    transition: transform 0.1s ease;
-  }
+    .item-icon-wrap:hover .tooltip {
+      display: block;
+    }
 
-  .buy-button:active {
-    transform: translateY(2px);
-  }
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-  .buy-button:disabled {
-    background: #777;
-    color: #ddd;
-    box-shadow: 0 4px 0 #555;
-    cursor: not-allowed;
-  }
+    .item-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffe0a6;
+    }
 
-  .per-click {
-    margin-top: 12px;
-    font-size: 18px;
-    color: #ffcfef;
-  }
-</style>
+    .item-cost {
+      font-size: 15px;
+      color: #d6d6d6;
+      margin-top: 4px;
+    }
+
+    .owned {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #9fd89f;
+    }
+  </style>
 </head>
 <body>
 
-<button class="shop-button" id="shopButton">🛒 Shop</button>
-
-<div class="shop-panel" id="shopPanel">
-  <div class="shop-title">Shop</div>
-
-  <div class="shop-item">
-    <div class="item-icon-wrap">
-      <div class="cookie-icon">
-        <div class="chip" style="left: 12px; top: 15px;"></div>
-        <div class="chip" style="left: 35px; top: 12px;"></div>
-        <div class="chip" style="left: 22px; top: 30px;"></div>
-        <div class="chip" style="left: 42px; top: 34px;"></div>
-        <div class="chip" style="left: 14px; top: 43px;"></div>
-      </div>
-      <div class="tooltip">+1 click</div>
+  <div class="main">
+    <div class="game">
+      <div class="counter" id="counter">0</div>
+      <div class="per-click" id="perClickText">Per click: 1</div>
+      <img src="images/bucket.png" class="bucket" id="bucket" alt="Candy Bucket" />
     </div>
-
-    <div class="item-info">
-      <div class="item-name">Cookie</div>
-      <div class="item-cost">10 Clicks</div>
-    </div>
-
-    <button class="buy-button" id="buyCookie">Buy</button>
   </div>
-</div>
 
-<div class="game">
-  <div class="counter" id="counter">0</div>
-  <div class="per-click" id="perClickText">Per click: 1</div>
-  <br><br>
-  <img src="images/bucket.png" class="bucket" id="bucket" alt="Candy Bucket">
-</div>
+  <div class="shop">
+    <div class="shop-title">Shop</div>
 
-<script>
-  let count = 0;
-  let clicksPerTap = 1;
-  let cookieCount = 0;
-  const cookieCost = 10;
+    <div class="shop-item" id="cookieItem">
+      <div class="item-icon-wrap">
+        <div class="tooltip">+1 click</div>
+        <div class="cookie-icon">
+          <div class="chip" style="left: 10px; top: 12px;"></div>
+          <div class="chip" style="left: 30px; top: 9px;"></div>
+          <div class="chip" style="left: 18px; top: 25px;"></div>
+          <div class="chip" style="left: 37px; top: 29px;"></div>
+          <div class="chip" style="left: 12px; top: 39px;"></div>
+        </div>
+      </div>
 
-  const counter = document.getElementById("counter");
-  const bucket = document.getElementById("bucket");
-  const shopButton = document.getElementById("shopButton");
-  const shopPanel = document.getElementById("shopPanel");
-  const buyCookie = document.getElementById("buyCookie");
-  const perClickText = document.getElementById("perClickText");
+      <div class="item-info">
+        <div class="item-name">Cookie</div>
+        <div class="item-cost" id="cookieCostText">10 Clicks</div>
+        <div class="owned" id="cookieOwnedText">Owned: 0</div>
+      </div>
+    </div>
+  </div>
 
-  function updateUI() {
-    counter.textContent = count;
-    perClickText.textContent = "Per click: " + clicksPerTap;
+  <script>
+    let count = 0;
+    let clicksPerTap = 1;
+    let cookieOwned = 0;
+    let cookieCost = 10;
 
-    if (count >= cookieCost) {
-      buyCookie.disabled = false;
-    } else {
-      buyCookie.disabled = true;
+    const counter = document.getElementById("counter");
+    const perClickText = document.getElementById("perClickText");
+    const bucket = document.getElementById("bucket");
+
+    const cookieItem = document.getElementById("cookieItem");
+    const cookieCostText = document.getElementById("cookieCostText");
+    const cookieOwnedText = document.getElementById("cookieOwnedText");
+
+    function updateUI() {
+      counter.textContent = count;
+      perClickText.textContent = "Per click: " + clicksPerTap;
+      cookieCostText.textContent = cookieCost + " Clicks";
+      cookieOwnedText.textContent = "Owned: " + cookieOwned;
+
+      if (count >= cookieCost) {
+        cookieItem.classList.remove("disabled");
+      } else {
+        cookieItem.classList.add("disabled");
+      }
     }
-  }
 
-  function getFarSpawn(bucketRect) {
-    const minDist = 200;
-    let x, y, dx, dy, dist;
+    function getFarSpawn(bucketRect) {
+      const minDist = 200;
+      let x, y, dx, dy, dist;
 
-    do {
-      x = Math.random() * (window.innerWidth - 80);
-      y = Math.random() * (window.innerHeight - 80);
+      do {
+        x = Math.random() * (window.innerWidth - 80);
+        y = Math.random() * (window.innerHeight - 80);
 
-      const bx = bucketRect.left + bucketRect.width / 2;
-      const by = bucketRect.top + bucketRect.height / 2;
+        const bx = bucketRect.left + bucketRect.width / 2;
+        const by = bucketRect.top + bucketRect.height / 2;
 
-      dx = x - bx;
-      dy = y - by;
-      dist = Math.sqrt(dx * dx + dy * dy);
-    } while (dist < minDist);
+        dx = x - bx;
+        dy = y - by;
+        dist = Math.sqrt(dx * dx + dy * dy);
+      } while (dist < minDist);
 
-    return { x, y };
-  }
+      return { x, y };
+    }
 
-  function spawnCandy() {
-    const candy = document.createElement("img");
-    candy.src = "images/bucketcandy.png";
-    candy.className = "candy";
+    function spawnCandy() {
+      const candy = document.createElement("img");
+      candy.src = "images/bucketcandy.png";
+      candy.className = "candy";
 
-    const bucketRect = bucket.getBoundingClientRect();
-    const spawn = getFarSpawn(bucketRect);
+      const bucketRect = bucket.getBoundingClientRect();
+      const spawn = getFarSpawn(bucketRect);
 
-    candy.style.left = spawn.x + "px";
-    candy.style.top = spawn.y + "px";
+      candy.style.left = spawn.x + "px";
+      candy.style.top = spawn.y + "px";
 
-    document.body.appendChild(candy);
+      document.body.appendChild(candy);
 
-    requestAnimationFrame(() => {
-      const rect = bucket.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        const rect = bucket.getBoundingClientRect();
+        const targetX = rect.left + rect.width / 2 - 25;
+        const targetY = rect.top + rect.height / 2 - 25;
 
-      const targetX = rect.left + rect.width / 2 - 25;
-      const targetY = rect.top + rect.height / 2 - 25;
+        const moveX = targetX - spawn.x;
+        const moveY = targetY - spawn.y;
 
-      const moveX = targetX - spawn.x;
-      const moveY = targetY - spawn.y;
+        candy.animate(
+          [
+            { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+            { transform: `translate(${moveX}px, ${moveY}px) scale(0.2) rotate(360deg)`, opacity: 0 }
+          ],
+          {
+            duration: 700,
+            easing: "ease-out",
+            fill: "forwards"
+          }
+        );
 
-      candy.animate([
-        { transform: "translate(0,0) scale(1)", opacity: 1 },
-        { transform: `translate(${moveX}px, ${moveY}px) scale(0.2) rotate(360deg)`, opacity: 0 }
-      ], {
-        duration: 700,
-        easing: "ease-out",
-        fill: "forwards"
+        setTimeout(() => candy.remove(), 700);
       });
-
-      setTimeout(() => candy.remove(), 700);
-    });
-  }
-
-  bucket.addEventListener("click", () => {
-    count += clicksPerTap;
-    spawnCandy();
-    updateUI();
-  });
-
-  shopButton.addEventListener("click", () => {
-    if (shopPanel.style.display === "block") {
-      shopPanel.style.display = "none";
-    } else {
-      shopPanel.style.display = "block";
     }
-  });
 
-  buyCookie.addEventListener("click", () => {
-    if (count >= cookieCost) {
-      count -= cookieCost;
-      cookieCount += 1;
-      clicksPerTap += 1;
+    bucket.addEventListener("click", () => {
+      count += clicksPerTap;
+      spawnCandy();
       updateUI();
-    }
-  });
+    });
 
-  updateUI();
-</script>
+    cookieItem.addEventListener("click", () => {
+      if (count < cookieCost) return;
 
+      count -= cookieCost;
+      cookieOwned += 1;
+      clicksPerTap += 1;
+      cookieCost = Math.floor(cookieCost * 1.5);
+
+      updateUI();
+    });
+
+    updateUI();
+  </script>
 </body>
 </html>
